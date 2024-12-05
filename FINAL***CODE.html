@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seafood Emissions Calculator</title>
+    <style>
+        body {
+            background-color: #e0f7fa;
+            color: #00796b;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            background-color: #b2ebf2;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #4dd0e1;
+            border: none;
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #26c6da;
+        }
+        .output-text {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .note {
+            color: #B0BEC5;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Seafood Emissions Calculator</h2>
+    <label for="fish_type">Select Fish Type:</label>
+    <select id="fish_type">
+        <option value="Salmon">Salmon</option>
+        <option value="Tuna">Tuna</option>
+        <option value="Cod">Cod</option>
+        <option value="Lobster">Lobster</option>
+        <option value="Shrimp">Shrimp</option>
+        <option value="Herring">Herring</option>
+    </select>
+
+    <label for="given_intake">Enter Given Intake (oz):</label>
+    <input type="number" id="given_intake" value="6" min="1">
+
+    <label for="time_frame">Select Time Frame:</label>
+    <select id="time_frame">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+    </select>
+
+    <label for="location">Select Location:</label>
+    <select id="location">
+        <option value="Alabama">Alabama</option>
+        <option value="Alaska">Alaska</option>
+        <option value="Arizona">Arizona</option>
+        <option value="Arkansas">Arkansas</option>
+        <option value="California">California</option>
+        <option value="Colorado">Colorado</option>
+        <option value="Connecticut">Connecticut</option>
+        <option value="Delaware">Delaware</option>
+        <option value="Florida">Florida</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Hawaii">Hawaii</option>
+        <option value="Idaho">Idaho</option>
+        <option value="Illinois">Illinois</option>
+        <option value="Indiana">Indiana</option>
+        <option value="Iowa">Iowa</option>
+        <option value="Kansas">Kansas</option>
+        <option value="Kentucky">Kentucky</option>
+        <option value="Louisiana">Louisiana</option>
+        <option value="Maine">Maine</option>
+        <option value="Maryland">Maryland</option>
+        <option value="Massachusetts">Massachusetts</option>
+        <option value="Michigan">Michigan</option>
+        <option value="Minnesota">Minnesota</option>
+        <option value="Mississippi">Mississippi</option>
+        <option value="Missouri">Missouri</option>
+        <option value="Montana">Montana</option>
+        <option value="Nebraska">Nebraska</option>
+        <option value="Nevada">Nevada</option>
+        <option value="New Hampshire">New Hampshire</option>
+        <option value="New Jersey">New Jersey</option>
+        <option value="New Mexico">New Mexico</option>
+        <option value="New York">New York</option>
+        <option value="North Carolina">North Carolina</option>
+        <option value="North Dakota">North Dakota</option>
+        <option value="Ohio">Ohio</option>
+        <option value="Oklahoma">Oklahoma</option>
+        <option value="Oregon">Oregon</option>
+        <option value="Pennsylvania">Pennsylvania</option>
+        <option value="Rhode Island">Rhode Island</option>
+        <option value="South Carolina">South Carolina</option>
+        <option value="South Dakota">South Dakota</option>
+        <option value="Tennessee">Tennessee</option>
+        <option value="Texas">Texas</option>
+        <option value="Utah">Utah</option>
+        <option value="Vermont">Vermont</option>
+        <option value="Virginia">Virginia</option>
+        <option value="Washington">Washington</option>
+        <option value="West Virginia">West Virginia</option>
+        <option value="Wisconsin">Wisconsin</option>
+        <option value="Wyoming">Wyoming</option>
+    </select>
+
+    <button class="btn-primary" onclick="calculateImpact()">Calculate Impact</button>
+</div>
+
+<div class="output-text" id="result"></div>
+<div class="output-text" id="co2_ppm_result"></div>
+<div class="output-text" id="temperature_change_result"></div>
+<div class="output-text" id="miles_driven_equivalent"></div>
+<div class="output-text" id="coal_equivalent"></div>
+<div class="output-text" id="average_sushi_co2_result"></div>
+<div class="output-text" id="personal_co2_result"></div>
+<div class="note" id="note"></div>
+
+<script>
+    const carbonFootprint = {
+        Salmon: 5.991,
+        Tuna: 7.629,
+        Cod: 5.125038766,
+        Lobster: 19.44495157,
+        Shrimp: 11.95673939,
+        Herring: 3.877940448
+    };
+
+    const populationsStates = {
+        Alabama: 5.024, Alaska: 0.731, Arizona: 7.276, Arkansas: 3.030,
+        California: 39.538, Colorado: 5.773, Connecticut: 3.605, Delaware: 1.004,
+        Florida: 21.538, Georgia: 10.711, Hawaii: 1.455, Idaho: 1.839,
+        Illinois: 12.812, Indiana: 6.785, Iowa: 3.190, Kansas: 2.910,
+        Kentucky: 4.505, Louisiana: 4.657, Maine: 1.354, Maryland: 6.045,
+        Massachusetts: 6.893, Michigan: 10.077, Minnesota: 5.706, Mississippi: 2.966,
+        Missouri: 6.154, Montana: 1.084, Nebraska: 1.951, Nevada: 3.104,
+        New_Hampshire: 1.377, New_Jersey: 9.288, New_Mexico: 2.117, New_York: 19.835,
+        North_Carolina: 10.551, North_Dakota: 0.779, Ohio: 11.799, Oklahoma: 3.959,
+        Oregon: 4.241, Pennsylvania: 13.002, Rhode_Island: 1.097, South_Carolina: 5.118,
+        South_Dakota: 0.886, Tennessee: 6.910, Texas: 29.145, Utah: 3.337,
+        Vermont: 0.645, Virginia: 8.631, Washington: 7.705, West_Virginia: 1.793,
+        Wisconsin: 5.893, Wyoming: 0.576
+    };
+
+    function calculateImpact() {
+        const fishType = document.getElementById("fish_type").value;
+        const givenIntake = parseFloat(document.getElementById("given_intake").value);
+        const timeFrame = document.getElementById("time_frame").value;
+        const location = document.getElementById("location").value;
+
+        const intakeGrams = givenIntake * 28.35; // Convert ounces to grams
+        let totalIntake;
+
+        switch (timeFrame) {
+            case "Daily":
+                totalIntake = intakeGrams;
+                break;
+            case "Weekly":
+                totalIntake = intakeGrams / 7;
+                break;
+            case "Monthly":
+                totalIntake = intakeGrams / 30;
+                break;
+        }
+
+        const population = populationsStates[location] * 1e6; // Convert millions to people
+        const totalFootprint = carbonFootprint[fishType] * totalIntake * population; // in grams
+        const totalFootprintTonnes = totalFootprint / 1e6; // Convert grams to tonnes
+
+        document.getElementById("result").innerText = 
+            `Estimated Total Carbon Footprint for ${population.toLocaleString()} people consuming ` +
+            `${totalIntake.toLocaleString()} grams of ${fishType} is ` +
+            `${totalFootprintTonnes.toFixed(2).toLocaleString()} tonnes of CO2.`;
+
+        const ppmIncrease = totalFootprintTonnes * 0.0000027;
+        document.getElementById("co2_ppm_result").innerText = 
+            `Estimated increase in atmospheric CO2 concentration is ${ppmIncrease.toFixed(6)} ppm.`;
+
+        const temperatureChange = ppmIncrease * 0.0044;
+        document.getElementById("temperature_change_result").innerText = 
+            `Estimated increase in Sea Surface Temperature is ${temperatureChange.toFixed(4)} °F.`;
+
+        const gramsPerMile = 404;
+        const milesDriven = totalFootprint / gramsPerMile;
+        document.getElementById("miles_driven_equivalent").innerText = 
+            `Equivalent miles driven based on CO2 emissions from ${fishType} consumption is approximately ` +
+            `${milesDriven.toFixed(2).toLocaleString()} miles.`;
+
+        const co2Tonnes = totalFootprint / 1e6;
+        const coalEquivalent = co2Tonnes / 2.86;
+        document.getElementById("coal_equivalent").innerText = 
+            `CO2 emissions from ${fishType} consumption is equivalent to burning approximately ` +
+            `${coalEquivalent.toFixed(2).toLocaleString()} tonnes of coal.`;
+
+        const averageOunces = [5, 6, 7, 8, 9];
+        const co2Emissions = averageOunces.map(ounce => {
+            const averageGrams = ounce * 28.35;
+            return averageGrams * carbonFootprint[fishType];
+        });
+        document.getElementById("average_sushi_co2_result").innerText = 
+            `Estimated CO2 emissions from an average sushi meal (${fishType}) weighing 5-9 ounces is between ` +
+            `${co2Emissions[0].toFixed(2)} grams and ${co2Emissions[4].toFixed(2)} grams.`;
+
+        const personalEmissions = intakeGrams * carbonFootprint[fishType];
+        document.getElementById("personal_co2_result").innerText = 
+            `Your personal CO2 emissions from consuming ` +
+            `${givenIntake.toFixed(2)} grams of ${fishType} is approximately ` +
+            `${(personalEmissions / 1000).toFixed(2)} kg of CO2.`;
+
+        document.getElementById("note").innerText = 
+            "This information is made to inform you about the impacts that particular diets may have on the environment. " +
+            "The goal of this calculator is to make the user more aware and conscious about their choices.";
+    }
+</script>
+
+</body>
+</html>
